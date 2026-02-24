@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tree Generator</title>
+
+<style>
+body{
+  background:#0f0f0f;
+  color:#dcdcdc;
+  font-family:monospace;
+  padding:28px;
+  max-width:900px;
+  margin:auto
+}
+h1{
+  font-weight:500;
+  font-size:20px;
+  margin-bottom:14px
+}
+input,button,select{
+  background:#1a1a1a;
+  color:#ddd;
+  border:1px solid #2a2a2a;
+  padding:6px 10px;
+  margin:4px 4px 4px 0;
+  cursor:pointer;
+  font-family:monospace
+}
+button:hover,select:hover{
+  background:#222
+}
+#controls{
+  display:none;
+  margin-top:10px
+}
+#output{
+  margin-top:20px;
+  background:#0b0b0b;
+  padding:14px;
+  border:1px solid #1f1f1f;
+  white-space:pre;
+  overflow:auto;
+  max-height:500px;
+  font-size:13px
+}
+#status{
+  margin-top:8px;
+  color:#888;
+  font-size:12px
+}
+#help{
+  margin-top:12px;
+  color:#666;
+  font-size:12px;
+  line-height:1.6
+}
+</style>
+</head>
+<body>
+
+<h1>Tree Generator</h1>
+
+<input type="file" id="folder" webkitdirectory multiple>
+
+<div id="controls">
+  <button id="copy">Copy</button>
+  <button id="downloadBtn">Download</button>
+  <select id="format" style="display:none">
+    <option value="txt">.txt</option>
+    <option value="md">.md</option>
+  </select>
+  <button id="clear">Clear</button>
+</div>
+
+<div id="help">
+Select a directory to generate its file structure.<br>
+Use Copy to copy the output or Download to export as .txt or .md.
+</div>
+
+<div id="output"></div>
+<div id="status"></div>
+
+<script>
+const folder=document.getElementById("folder")
+const output=document.getElementById("output")
+const status=document.getElementById("status")
+const controls=document.getElementById("controls")
+const formatSelect=document.getElementById("format")
+
+const ignore=[".git","node_modules"]
+
+const msg=t=>{
+  status.textContent=t
+  if(t) setTimeout(()=>status.textContent="",2000)
+}
+
+const build=files=>{
+  const tree={}
+  for(const f of files){
+    const parts=f.webkitRelativePath.split("/")
+    let cur=tree
+    for(let i=0;i<parts.length;i++){
+      if(ignore.includes(parts[i])) break
+      if(!cur[parts[i]])
+        cur[parts[i]]=i===parts.length-1?{f:1}:{}
+      cur=cur[parts[i]]
+    }
+  }
+  return tree
+}
+
+const sort=t=>Object.keys(t).sort((a,b)=>{
+  const af=t[a].f,bf=t[b].f
+  if(!af&&bf) return -1
+  if(af&&!bf) return 1
+  return a.localeCompare(b)
+})
+
+const formatTree=(t,p="")=>{
+  let r=""
+  const k=sort(t)
+  k.forEach((key,i)=>{
+    const last=i===k.length-1
+    r+=p+(last?"└── ":"├── ")+key+"\n"
+    if(!t[key].f)
+      r+=formatTree(t[key],p+(last?"    ":"│   "))
+  })
+  return r
+}
+
+folder.onchange=e=>{
+  const files=e.target.files
+  if(!files.length) return
+  const root=files[0].webkitRelativePath.split("/")[0]
+  const tree=build(files)
+  output.textContent=root+"/\n"+formatTree(tree[root]||tree)
+  controls.style.display="block"
+  msg("Structure generated.")
+}
+
+document.getElementById("copy").onclick=()=>{
+  if(!output.textContent.trim()) return
+  navigator.clipboard.writeText(output.textContent)
+  msg("Copied to clipboard.")
+}
+
+document.getElementById("downloadBtn").onclick=()=>{
+  formatSelect.style.display=
+    formatSelect.style.display==="none"?"inline-block":"none"
+}
+
+formatSelect.onchange=()=>{
+  const ext="."+formatSelect.value
+  const text=output.textContent
+  if(!text.trim()) return
+
+  const content = ext===".md"
+    ? "```bash\n"+text+"\n```"
+    : text
+
+  const blob=new Blob([content],{type:"text/plain"})
+  const a=document.createElement("a")
+  a.href=URL.createObjectURL(blob)
+  a.download="tree"+ext
+  a.click()
+
+  formatSelect.style.display="none"
+  msg("File downloaded.")
+}
+
+document.getElementById("clear").onclick=()=>{
+  folder.value=""
+  output.textContent=""
+  controls.style.display="none"
+  formatSelect.style.display="none"
+  msg("Cleared.")
+}
+</script>
+
+</body>
+</html>
