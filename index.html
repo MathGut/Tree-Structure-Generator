@@ -3,9 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tree Generator</title>
+<title>Tree Structure Generator</title>
 
 <style>
+#info{
+  color: #595958;
+  text-decoration: none;
+}
+#info a:hover {
+  color: ##777777;
+}
 body{
   background:#0f0f0f;
   color:#dcdcdc;
@@ -74,9 +81,9 @@ button:hover,select:hover{
   <button id="clear">Clear</button>
 </div>
 
-<div id="help">
-Select a directory to generate its file structure<br>
-Use Copy to copy the output or Download to export as txt / md.
+<div id="info">
+Made By MathGut<br>
+My Profile: <a href="https://github.com/MathGut">MathGut</a>
 </div>
 
 <div id="output"></div>
@@ -178,8 +185,5 @@ document.getElementById("clear").onclick=()=>{
   msg("Cleared!")
 }
 </script>
-
 </body>
-
 </html>
-
