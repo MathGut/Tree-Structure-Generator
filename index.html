@@ -60,7 +60,7 @@ button:hover,select:hover{
 </head>
 <body>
 
-<h1>Tree Generator</h1>
+<h1>Tree Structure Generator</h1>
 
 <input type="file" id="folder" webkitdirectory multiple>
 
@@ -75,8 +75,8 @@ button:hover,select:hover{
 </div>
 
 <div id="help">
-Select a directory to generate its file structure.<br>
-Use Copy to copy the output or Download to export as .txt or .md.
+Select a directory to generate its file structure<br>
+Use Copy to copy the output or Download to export as txt / md.
 </div>
 
 <div id="output"></div>
@@ -137,13 +137,13 @@ folder.onchange=e=>{
   const tree=build(files)
   output.textContent=root+"/\n"+formatTree(tree[root]||tree)
   controls.style.display="block"
-  msg("Structure generated.")
+  msg("Structure has generated!")
 }
 
 document.getElementById("copy").onclick=()=>{
   if(!output.textContent.trim()) return
   navigator.clipboard.writeText(output.textContent)
-  msg("Copied to clipboard.")
+  msg("Copied to clipboard")
 }
 
 document.getElementById("downloadBtn").onclick=()=>{
@@ -167,7 +167,7 @@ formatSelect.onchange=()=>{
   a.click()
 
   formatSelect.style.display="none"
-  msg("File downloaded.")
+  msg("File downloaded!")
 }
 
 document.getElementById("clear").onclick=()=>{
@@ -175,9 +175,10 @@ document.getElementById("clear").onclick=()=>{
   output.textContent=""
   controls.style.display="none"
   formatSelect.style.display="none"
-  msg("Cleared.")
+  msg("Cleared!")
 }
 </script>
 
 </body>
+
 </html>
